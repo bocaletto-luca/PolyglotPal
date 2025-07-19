@@ -1,72 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>PolyglotPal – Instant Text Translator</title>
-  <meta name="description" content="PolyglotPal: translate text instantly between 100+ languages, save phrases, listen pronunciation, copy or download—all client-side.">
+  <meta name="description" content="Translate text between 100+ languages instantly, offline-first, privacy-focused."/>
   <style>
     :root {
       --bg: #f4f4f4; --fg: #333; --card: #fff;
       --primary: #0066cc; --primary-dark: #004a99;
-      --accent: #28a745; --accent-dark: #1e7e34;
-      --border: #ccc;
+      --accent: #28a745; --accent-dark: #1e7e34; --border: #ccc;
     }
     [data-theme="dark"] {
       --bg: #1e1e1e; --fg: #eee; --card: #2c2c2c;
       --primary: #339af0; --primary-dark: #1c7ed6;
-      --accent: #5cb85c; --accent-dark: #4cae4c;
-      --border: #555;
+      --accent: #5cb85c; --accent-dark: #4cae4c; --border: #555;
     }
-    * { box-sizing:border-box; margin:0; padding:0 }
+    * { box-sizing:border-box; margin:0; padding:0; }
     body {
-      font-family:Arial,sans-serif;
       background:var(--bg); color:var(--fg);
+      font-family:Arial,sans-serif;
       display:flex; flex-direction:column; min-height:100vh;
     }
     header, footer {
       background:var(--primary); color:#fff;
       text-align:center; padding:1rem;
     }
-    footer a { color:#fff; text-decoration:underline }
     main {
-      flex:1; max-width:900px; width:100%;
-      margin:1rem auto; padding:1rem;
+      flex:1; max-width:900px; margin:1rem auto; padding:1rem;
     }
-    .row { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem }
-    select, button, textarea, input {
-      font-size:1rem; border:1px solid var(--border); border-radius:4px;
-      padding:0.5rem; background:var(--card); color:var(--fg);
+    .row {
+      display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem;
     }
-    select, input { flex:1 }
+    select, button, textarea {
+      font-size:1rem; border:1px solid var(--border);
+      border-radius:4px; padding:.5rem; background:var(--card);
+      color:var(--fg);
+    }
+    select, textarea { flex:1 }
     button {
-      background:var(--accent); color:#fff; border:none; cursor:pointer;
-      transition:background 0.2s; flex:0 0 auto;
+      cursor:pointer; transition:background .2s;
+      background:var(--accent); color:#fff; border:none;
     }
     button:hover { background:var(--accent-dark) }
+    .swap-btn { background:var(--primary) }
+    .swap-btn:hover { background:var(--primary-dark) }
     textarea {
       width:100%; min-height:100px; resize:vertical;
     }
-    .swap-btn { background:var(--primary); }
-    .swap-btn:hover { background:var(--primary-dark) }
-    .actions { display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.5rem }
-    .actions button { background:var(--primary); }
-    .actions button:hover { background:var(--primary-dark) }
-
-    .section { background:var(--card); border:1px solid var(--border); border-radius:6px; padding:1rem; margin-bottom:1rem }
-    .section h2 { margin-bottom:0.5rem; font-size:1.2rem }
-
-    #historyList, #favList {
-      list-style:none; max-height:200px; overflow-y:auto; padding-left:0;
+    .actions {
+      display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.5rem;
     }
-    #historyList li, #favList li {
-      padding:0.4rem; border-bottom:1px solid var(--border);
+    .actions button { background:var(--primary) }
+    .actions button:hover { background:var(--primary-dark) }
+    .section {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:6px; padding:1rem; margin-bottom:1rem;
+    }
+    .section h2 { margin-bottom:.5rem; font-size:1.2rem }
+    ul { list-style:none; padding:0; margin:0; }
+    li {
+      padding:.4rem; border-bottom:1px solid var(--border);
       display:flex; justify-content:space-between; align-items:center;
     }
-    #historyList li:last-child, #favList li:last-child { border-bottom:none }
-    .hist-text { flex:1; cursor: pointer }
+    li:last-child { border-bottom:none }
+    .hist-text { flex:1; cursor:pointer }
     .star-btn { background:transparent; color:var(--accent); font-size:1.1rem }
-
     @media(max-width:600px){
       .row { flex-direction:column }
       .actions { flex-direction:column }
@@ -76,11 +75,10 @@
 <body data-theme="light">
   <header>
     <h1>PolyglotPal</h1>
-    <p>Instant text translator • offline-first design • privacy-by-design</p>
+    <p>Translate text instantly between 100+ languages</p>
   </header>
 
   <main>
-    <!-- Translator -->
     <div class="section">
       <div class="row">
         <select id="srcLang"></select>
@@ -94,7 +92,7 @@
         <button id="transBtn">Translate</button>
       </div>
       <div class="row">
-        <textarea id="tgtText" readonly placeholder="Translation appears here…"></textarea>
+        <textarea id="tgtText" readonly placeholder="Translated text…"></textarea>
       </div>
       <div class="actions">
         <button id="speakBtn">🔊 Speak</button>
@@ -105,7 +103,6 @@
       </div>
     </div>
 
-    <!-- History & Favorites -->
     <div class="section">
       <h2>History</h2>
       <ul id="historyList"></ul>
@@ -117,7 +114,7 @@
   </main>
 
   <footer>
-    © 2025 Bocaletto Luca &nbsp;|&nbsp;
+    © 2025 Bocaletto Luca |
     <a href="https://github.com/bocaletto-luca/PolyglotPal" target="_blank">Repository</a>
   </footer>
 
@@ -125,9 +122,10 @@
   (function(){
     const LANGS = {
       en:'English', es:'Spanish', fr:'French', de:'German',
-      it:'Italian', pt:'Portuguese', ru:'Russian', ja:'Japanese', zh:'Chinese'
+      it:'Italian', pt:'Portuguese', ru:'Russian', ja:'Japanese', zh:'Chinese',
+      ar:'Arabic', ko:'Korean', nl:'Dutch', sv:'Swedish',
+      hi:'Hindi', vi:'Vietnamese', id:'Indonesian', tr:'Turkish'
     };
-    // UI Refs
     const srcSel  = document.getElementById('srcLang');
     const tgtSel  = document.getElementById('tgtLang');
     const srcTa   = document.getElementById('srcText');
@@ -141,59 +139,59 @@
     const themeBtn= document.getElementById('themeBtn');
     const histUL  = document.getElementById('historyList');
     const favUL   = document.getElementById('favList');
+    const body    = document.body;
 
     let state = JSON.parse(localStorage.getItem('polyglotpal')||'{"history":[],"favorites":[]}');
     function saveState(){ localStorage.setItem('polyglotpal', JSON.stringify(state)); }
 
-    // Populate language selectors
-    for(let code in LANGS){
-      srcSel.add(new Option(LANGS[code], code));
-      tgtSel.add(new Option(LANGS[code], code));
-    }
+    // Populate language dropdowns
+    Object.entries(LANGS).forEach(([code,name])=>{
+      srcSel.add(new Option(name,code));
+      tgtSel.add(new Option(name,code));
+    });
     srcSel.value='en'; tgtSel.value='es';
 
-    // Swap
+    // Swap languages & texts
     swapBtn.onclick = ()=>{
       [srcSel.value,tgtSel.value] = [tgtSel.value,srcSel.value];
       [srcTa.value,tgtTa.value]   = [tgtTa.value,srcTa.value];
     };
 
-    // Translate (LibreTranslate public demo)
+    // Translate using LibreTranslate demo endpoint
     transBtn.onclick = async ()=>{
-      const text=srcTa.value.trim();
+      const text = srcTa.value.trim();
       if(!text) return;
-      transBtn.disabled=true;
+      transBtn.disabled = true;
       tgtTa.value = 'Translating…';
       try {
-        const res = await fetch('https://libretranslate.de/translate', {
+        const res = await fetch('https://libretranslate.com/translate', {
           method:'POST',
           headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({
-            q:text, source:srcSel.value, target:tgtSel.value, format:'text'
+          body: JSON.stringify({
+            q: text, source: srcSel.value, target: tgtSel.value, format: 'text'
           })
         });
-        const {translatedText} = await res.json();
-        tgtTa.value = translatedText;
-        addHistory(text,translatedText);
-      } catch(e){
-        tgtTa.value = 'Error translating';
-        console.error(e);
+        const json = await res.json();
+        if(json.error) throw new Error(json.error);
+        tgtTa.value = json.translatedText;
+        addHistory(text, json.translatedText);
+      } catch(err) {
+        console.error(err);
+        tgtTa.value = 'Translation error';
       }
-      transBtn.disabled=false;
+      transBtn.disabled = false;
     };
 
-    // Add to history
-    function addHistory(src, tgt){
-      const entry = { src,tgt, s:srcSel.value, t:tgtSel.value, ts:Date.now() };
+    function addHistory(src,tgt){
+      const entry = {src,tgt,s:srcSel.value,t:tgtSel.value,ts:Date.now()};
       state.history.unshift(entry);
       if(state.history.length>50) state.history.pop();
       saveState(); renderHistory();
     }
 
-    // Render history & favorites
     function renderHistory(){
-      histUL.innerHTML='';
-      state.history.forEach((e,i)=>{
+      histUL.innerHTML = '';
+      state.history.forEach(e=>{
         const li = document.createElement('li');
         li.innerHTML = `<span class="hist-text">${e.src} → ${e.tgt}</span>
                         <button class="star-btn">${isFav(e)?'★':'☆'}</button>`;
@@ -208,8 +206,9 @@
         histUL.append(li);
       });
     }
+
     function renderFavorites(){
-      favUL.innerHTML='';
+      favUL.innerHTML = '';
       state.favorites.forEach(e=>{
         const li = document.createElement('li');
         li.innerHTML = `<span class="hist-text">${e.src} → ${e.tgt}</span>
@@ -225,68 +224,54 @@
         favUL.append(li);
       });
     }
+
     function isFav(entry){
-      return state.favorites.some(e=>e.ts===entry.ts);
+      return state.favorites.some(f=>f.ts===entry.ts);
     }
     function toggleFavorite(entry){
       if(isFav(entry)){
-        state.favorites = state.favorites.filter(e=>e.ts!==entry.ts);
+        state.favorites = state.favorites.filter(f=>f.ts!==entry.ts);
       } else {
         state.favorites.unshift(entry);
       }
       saveState();
     }
 
-    // Speak
     speakBtn.onclick = ()=>{
       const utter = new SpeechSynthesisUtterance(tgtTa.value);
       utter.lang = tgtSel.value;
       speechSynthesis.speak(utter);
     };
-
-    // Copy
     copyBtn.onclick = async ()=>{
-      await navigator.clipboard.writeText(tgtTa.value);
-      alert('Copied!');
+      try{ await navigator.clipboard.writeText(tgtTa.value); alert('Copied'); }
+      catch{ alert('Copy failed'); }
     };
-
-    // Download .txt
     downBtn.onclick = ()=>{
-      const blob = new Blob([`Original (${srcSel.value}):\n${srcTa.value}\n\nTranslated (${tgtSel.value}):\n${tgtTa.value}`],
-                            {type:'text/plain'});
+      const blob = new Blob([
+        `Original (${srcSel.value}):\n${srcTa.value}\n\n`,
+        `Translated (${tgtSel.value}):\n${tgtTa.value}`
+      ], { type:'text/plain' });
       const url = URL.createObjectURL(blob);
       const a   = document.createElement('a');
-      a.href = url;
+      a.href  = url;
       a.download = 'translation.txt';
       a.click();
       URL.revokeObjectURL(url);
     };
-
-    // Favorite current
     favBtn.onclick = ()=>{
-      const entry = {
-        src:srcTa.value, tgt:tgtTa.value,
-        s:srcSel.value, t:tgtSel.value, ts:Date.now()
-      };
+      const entry = {src:srcTa.value,tgt:tgtTa.value,s:srcSel.value,t:tgtSel.value,ts:Date.now()};
       toggleFavorite(entry);
       renderHistory(); renderFavorites();
     };
-
-    // Theme toggle
     themeBtn.onclick = ()=>{
       const next = body.dataset.theme==='light'?'dark':'light';
       body.dataset.theme = next;
-      themeBtn.textContent = next==='dark'?'☀️ Light Mode':'🌙 Dark Mode';
+      themeBtn.textContent = next==='dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
     };
-
-    // Enter ➞ translate
     srcTa.addEventListener('keydown', e=>{
-      if(e.key==='Enter' && !e.shiftKey){
-        e.preventDefault(); transBtn.click();
-      }
+      if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); transBtn.click(); }
     });
 
-    // Init
     renderHistory(); renderFavorites();
   })();
   </script>
