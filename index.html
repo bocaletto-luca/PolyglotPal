@@ -2,50 +2,108 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>PolyglotPal – Instant Text Translator</title>
+  <meta name="description" content="PolyglotPal: translate text instantly between 100+ languages, save phrases, listen pronunciation, copy or download—all client-side."/>
+  <meta name="keywords" content="PolyglotPal, translator, text translation, client-side, Web Speech API, history, favorites"/>
+  <meta name="author" content="Bocaletto Luca"/>
+  <link rel="canonical" href="https://github.com/bocaletto-luca/PolyglotPal"/>
+  <meta property="og:title" content="PolyglotPal – Instant Text Translator"/>
+  <meta property="og:description" content="Translate text instantly between 100+ languages with history, speech, copy & download."/>
+  <meta property="og:url" content="https://github.com/bocaletto-luca/PolyglotPal"/>
+  <meta property="og:type" content="website"/>
+  <script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "WebApplication",
+    "name": "PolyglotPal",
+    "url": "https://github.com/bocaletto-luca/PolyglotPal",
+    "applicationCategory": "Translation",
+    "description": "Translate text instantly between 100+ languages with history, favorites, pronunciation, copy and download features."
+  }
+  </script>
   <style>
     :root {
       --bg: #f4f4f4; --fg: #333; --card: #fff;
-      --primary: #0066cc; --accent: #28a745; --border: #ccc;
+      --primary: #0066cc; --primary-dark: #004a99;
+      --accent: #28a745; --accent-dark: #1e7e34;
+      --border: #ccc;
     }
     [data-theme="dark"] {
       --bg: #1e1e1e; --fg: #eee; --card: #2c2c2c;
-      --primary: #339af0; --accent: #5cb85c; --border: #555;
+      --primary: #339af0; --primary-dark: #1c7ed6;
+      --accent: #5cb85c; --accent-dark: #4cae4c;
+      --border: #555;
     }
-    * { box-sizing:border-box; margin:0; padding:0; }
-    body { background:var(--bg); color:var(--fg); font-family:Arial,sans-serif;
-           display:flex; flex-direction:column; min-height:100vh; }
-    header, footer { background:var(--primary); color:#fff; text-align:center; padding:1rem }
-    main { flex:1; max-width:900px; margin:1rem auto; padding:1rem }
-    .row { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem }
+    * { box-sizing:border-box; margin:0; padding:0 }
+    body {
+      font-family:Arial,sans-serif;
+      background:var(--bg); color:var(--fg);
+      display:flex; flex-direction:column; min-height:100vh;
+    }
+    header, footer {
+      background:var(--primary); color:#fff;
+      text-align:center; padding:1rem;
+    }
+    footer a { color:#fff; text-decoration:underline }
+    main {
+      flex:1; max-width:900px; margin:1rem auto; padding:1rem;
+    }
+    .row {
+      display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem;
+    }
     select, button, textarea {
-      font-size:1rem; border:1px solid var(--border); border-radius:4px;
-      padding:.5rem; background:var(--card); color:var(--fg);
+      font-size:1rem; border:1px solid var(--border);
+      border-radius:4px; padding:.5rem;
+      background:var(--card); color:var(--fg);
     }
     select, textarea { flex:1 }
-    button { cursor:pointer; background:var(--accent); color:#fff; border:none; transition:background .2s; }
-    button:hover { background:#1e7e34 }
+    button {
+      background:var(--accent); color:#fff; border:none;
+      cursor:pointer; transition:background .2s;
+    }
+    button:hover { background:var(--accent-dark) }
     .swap-btn { background:var(--primary) }
-    textarea { width:100%; min-height:100px; resize:vertical }
-    .actions { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.5rem }
-    .section { background:var(--card); border:1px solid var(--border);
-               border-radius:6px; padding:1rem; margin-bottom:1rem }
+    .swap-btn:hover { background:var(--primary-dark) }
+    textarea {
+      width:100%; min-height:100px; resize:vertical;
+    }
+    .actions {
+      display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.5rem;
+    }
+    .actions button { background:var(--primary) }
+    .actions button:hover { background:var(--primary-dark) }
+    .section {
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:6px;
+      padding:1rem;
+      margin-bottom:1rem;
+    }
+    .section h2 { margin-bottom:.5rem; font-size:1.2rem }
     ul { list-style:none; padding:0; margin:0 }
-    li { padding:.4rem; border-bottom:1px solid var(--border);
-         display:flex; justify-content:space-between; align-items:center }
+    li {
+      display:flex; justify-content:space-between;
+      align-items:center; padding:.4rem;
+      border-bottom:1px solid var(--border);
+    }
     li:last-child { border-bottom:none }
     .hist-text { flex:1; cursor:pointer }
     .star-btn { background:transparent; color:var(--accent); font-size:1.1rem }
+    @media(max-width:600px){
+      .row { flex-direction:column }
+      .actions { flex-direction:column }
+    }
   </style>
 </head>
 <body data-theme="light">
   <header>
     <h1>PolyglotPal</h1>
-    <p>Translate text instantly, then click Speak 🎙️</p>
+    <p>Translate text instantly between 100+ languages</p>
   </header>
 
   <main>
+    <!-- Translator UI -->
     <div class="section">
       <div class="row">
         <select id="srcLang"></select>
@@ -53,27 +111,30 @@
         <select id="tgtLang"></select>
       </div>
       <div class="row">
-        <textarea id="srcText" placeholder="Type text…"></textarea>
+        <textarea id="srcText" placeholder="Type text here…"></textarea>
       </div>
       <div class="row">
         <button id="transBtn">Translate</button>
       </div>
       <div class="row">
-        <textarea id="tgtText" readonly placeholder="Translation…"></textarea>
+        <textarea id="tgtText" readonly placeholder="Translated text…"></textarea>
       </div>
       <div class="actions">
         <button id="speakBtn">🔊 Speak</button>
         <button id="copyBtn">📋 Copy</button>
-        <button id="downloadBtn">⬇️ Download</button>
+        <button id="downloadBtn">⬇️ Download .txt</button>
         <button id="favBtn" class="star-btn">☆ Favorite</button>
         <button id="themeBtn">🌙 Dark Mode</button>
       </div>
     </div>
 
+    <!-- History -->
     <div class="section">
       <h2>History</h2>
       <ul id="historyList"></ul>
     </div>
+
+    <!-- Favorites -->
     <div class="section">
       <h2>Favorites</h2>
       <ul id="favList"></ul>
@@ -81,24 +142,26 @@
   </main>
 
   <footer>
-    © 2025 Bocaletto Luca
+    © 2025 Bocaletto Luca – <a href="https://github.com/bocaletto-luca/PolyglotPal" target="_blank">Repository</a>
   </footer>
 
   <script>
   (function(){
     const API_URL = 'https://api.mymemory.translated.net/get';
-    const LANGS = { en:'English', es:'Spanish', fr:'French', de:'German', it:'Italian', 
-      pt:'Portuguese', ru:'Russian', ja:'Japanese', zh:'Chinese', ar:'Arabic',
-      ko:'Korean', nl:'Dutch', sv:'Swedish', hi:'Hindi', vi:'Vietnamese',
+    const LANGS = {
+      en:'English', es:'Spanish', fr:'French', de:'German',
+      it:'Italian', pt:'Portuguese', ru:'Russian', ja:'Japanese',
+      zh:'Chinese', ar:'Arabic', ko:'Korean', nl:'Dutch',
+      sv:'Swedish', hi:'Hindi', vi:'Vietnamese',
       id:'Indonesian', tr:'Turkish'
     };
 
     // UI refs
-    const srcSel = document.getElementById('srcLang'),
-          tgtSel = document.getElementById('tgtLang'),
-          srcTa  = document.getElementById('srcText'),
-          tgtTa  = document.getElementById('tgtText'),
-          swapBtn= document.getElementById('swapBtn'),
+    const srcSel   = document.getElementById('srcLang'),
+          tgtSel   = document.getElementById('tgtLang'),
+          srcTa    = document.getElementById('srcText'),
+          tgtTa    = document.getElementById('tgtText'),
+          swapBtn  = document.getElementById('swapBtn'),
           transBtn = document.getElementById('transBtn'),
           speakBtn = document.getElementById('speakBtn'),
           copyBtn  = document.getElementById('copyBtn'),
@@ -109,133 +172,166 @@
           favUL    = document.getElementById('favList'),
           body     = document.body;
 
+    // persistent state
     let state = JSON.parse(localStorage.getItem('polyglotpal')||'{"history":[],"favorites":[]}');
-    const saveState = ()=> localStorage.setItem('polyglotpal', JSON.stringify(state));
+    function saveState(){ localStorage.setItem('polyglotpal', JSON.stringify(state)); }
 
     // populate languages
-    Object.entries(LANGS).forEach(([c,n])=>{
-      srcSel.add(new Option(n,c));
-      tgtSel.add(new Option(n,c));
+    Object.entries(LANGS).forEach(([code,name])=>{
+      srcSel.add(new Option(name, code));
+      tgtSel.add(new Option(name, code));
     });
-    srcSel.value='en'; tgtSel.value='es';
+    srcSel.value = 'en';
+    tgtSel.value = 'es';
 
-    // swap
-    swapBtn.onclick = ()=>{
-      [srcSel.value,tgtSel.value]=[tgtSel.value,srcSel.value];
-      [srcTa.value,tgtTa.value]=[tgtTa.value,srcTa.value];
+    // swap languages/text
+    swapBtn.onclick = () => {
+      [srcSel.value,tgtSel.value] = [tgtSel.value,srcSel.value];
+      [srcTa.value,tgtTa.value]   = [tgtTa.value,srcTa.value];
     };
 
     // translate
-    transBtn.onclick = async ()=>{
-      const q = srcTa.value.trim();
-      if(!q) return;
-      transBtn.disabled=true; tgtTa.value='…Translating';
-      try{
-        const url = `${API_URL}?q=${encodeURIComponent(q)}&langpair=${srcSel.value}|${tgtSel.value}`;
+    transBtn.onclick = async () => {
+      const text = srcTa.value.trim();
+      if (!text) return;
+      transBtn.disabled = true;
+      tgtTa.value = 'Translating…';
+      try {
+        const url = `${API_URL}?q=${encodeURIComponent(text)}&langpair=${srcSel.value}|${tgtSel.value}`;
         const res = await fetch(url);
         const json = await res.json();
-        tgtTa.value = json.responseData.translatedText;
-        addHistory(q,json.responseData.translatedText);
-      } catch(e){
-        console.error(e);
-        tgtTa.value='Translation error';
+        const translated = json.responseData.translatedText;
+        tgtTa.value = translated;
+        addHistory(text, translated);
+      } catch (err) {
+        console.error(err);
+        tgtTa.value = 'Error during translation';
       }
-      transBtn.disabled=false;
+      transBtn.disabled = false;
     };
 
     // history & favorites
-    function addHistory(s,t){
-      const e={src:s,tgt:t,s:srcSel.value,t:tgtSel.value,ts:Date.now()};
-      state.history.unshift(e);
-      if(state.history.length>50) state.history.pop();
+    function addHistory(src,tgt){
+      const entry = { src,tgt,s:srcSel.value,t:tgtSel.value,ts:Date.now() };
+      state.history.unshift(entry);
+      if (state.history.length>50) state.history.pop();
       saveState(); renderHistory();
     }
-    function isFav(e){return state.favorites.some(f=>f.ts===e.ts);}
-    function toggleFav(e){ 
-      if(isFav(e)) state.favorites=state.favorites.filter(f=>f.ts!==e.ts);
+    function isFav(e){ return state.favorites.some(f=>f.ts===e.ts); }
+    function toggleFav(e){
+      if (isFav(e)) state.favorites = state.favorites.filter(f=>f.ts!==e.ts);
       else state.favorites.unshift(e);
       saveState();
     }
     function renderHistory(){
-      histUL.innerHTML='';
+      histUL.innerHTML = '';
       state.history.forEach(e=>{
-        const li=document.createElement('li');
-        li.innerHTML=`<span class="hist-text">${e.src} → ${e.tgt}</span>
-                      <button class="star-btn">${isFav(e)?'★':'☆'}</button>`;
-        li.querySelector('.hist-text').onclick=()=>{
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="hist-text">${e.src} → ${e.tgt}</span>
+                        <button class="star-btn">${isFav(e)?'★':'☆'}</button>`;
+        li.querySelector('.hist-text').onclick = ()=>{
           srcTa.value=e.src; tgtTa.value=e.tgt;
           srcSel.value=e.s;  tgtSel.value=e.t;
         };
-        li.querySelector('.star-btn').onclick=()=>{
-          toggleFav(e); renderHistory(); renderFavorites();
+        li.querySelector('.star-btn').onclick = ()=>{
+          toggleFav(e);
+          renderHistory(); renderFavorites();
         };
-        histUL.append(li);
+        histUL.appendChild(li);
       });
     }
     function renderFavorites(){
-      favUL.innerHTML='';
+      favUL.innerHTML = '';
       state.favorites.forEach(e=>{
-        const li=document.createElement('li');
-        li.innerHTML=`<span class="hist-text">${e.src} → ${e.tgt}</span>
-                      <button class="star-btn">★</button>`;
-        li.querySelector('.hist-text').onclick=()=>{
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="hist-text">${e.src} → ${e.tgt}</span>
+                        <button class="star-btn">★</button>`;
+        li.querySelector('.hist-text').onclick = ()=>{
           srcTa.value=e.src; tgtTa.value=e.tgt;
           srcSel.value=e.s;  tgtSel.value=e.t;
         };
-        li.querySelector('.star-btn').onclick=()=>{
-          toggleFav(e); renderHistory(); renderFavorites();
+        li.querySelector('.star-btn').onclick = ()=>{
+          toggleFav(e);
+          renderHistory(); renderFavorites();
         };
-        favUL.append(li);
+        favUL.appendChild(li);
       });
     }
 
-    // speech synthesis
-    let voices=[];
-    function loadVoices(){ voices=speechSynthesis.getVoices(); console.log('Voices loaded',voices); }
-    speechSynthesis.onvoiceschanged = loadVoices;
-    loadVoices();
+    // load voices reliably
+    let voices = [];
+    function initVoices() {
+      voices = speechSynthesis.getVoices();
+      if (!voices.length) {
+        // retry until voices appear
+        setTimeout(initVoices, 200);
+      }
+    }
+    speechSynthesis.onvoiceschanged = initVoices;
+    initVoices();
 
-    speakBtn.onclick = ()=>{
-      const txt = tgtTa.value.trim();
-      if(!txt) return alert('Nothing to speak');
-      if(speechSynthesis.speaking) speechSynthesis.cancel();
-      const u=new SpeechSynthesisUtterance(txt);
-      u.lang=tgtSel.value;
-      const v=voices.find(v=>v.lang.toLowerCase().startsWith(tgtSel.value));
-      if(v) u.voice=v;
-      speechSynthesis.speak(u);
+    // speak translation
+    speakBtn.onclick = () => {
+      const text = tgtTa.value.trim();
+      if (!text) return alert('Nothing to speak');
+      if (speechSynthesis.speaking) speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = tgtSel.value;
+      // choose matching voice
+      const match = voices.find(v => v.lang.toLowerCase().startsWith(tgtSel.value.toLowerCase()));
+      if (match) utter.voice = match;
+      speechSynthesis.speak(utter);
     };
 
-    // copy/download/fav/theme
-    copyBtn.onclick=async()=>{
-      try{ await navigator.clipboard.writeText(tgtTa.value); alert('Copied'); }
-      catch{ alert('Copy failed'); }
+    // copy to clipboard
+    copyBtn.onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(tgtTa.value);
+        alert('Copied to clipboard');
+      } catch {
+        alert('Copy failed');
+      }
     };
-    downBtn.onclick=()=>{
-      const blob=new Blob([`Original (${srcSel.value}):\n${srcTa.value}\n\nTranslated (${tgtSel.value}):\n${tgtTa.value}`],
-                          {type:'text/plain'});
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');
-      a.href=url; a.download='translation.txt'; a.click();
+
+    // download as .txt
+    downBtn.onclick = () => {
+      const blob = new Blob([
+        `Original (${srcSel.value}):\n${srcTa.value}\n\n`,
+        `Translated (${tgtSel.value}):\n${tgtTa.value}`
+      ], { type:'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'translation.txt';
+      a.click();
       URL.revokeObjectURL(url);
     };
-    favBtn.onclick=()=>{
-      const e={src:srcTa.value,tgt:tgtTa.value,s:srcSel.value,t:tgtSel.value,ts:Date.now()};
-      toggleFav(e); renderHistory(); renderFavorites();
-    };
-    themeBtn.onclick=()=>{
-      const t=body.dataset.theme==='light'?'dark':'light';
-      body.dataset.theme=t;
-      themeBtn.textContent=t==='dark'?'☀️ Light Mode':'🌙 Dark Mode';
+
+    // favorite current
+    favBtn.onclick = () => {
+      const entry = { src:srcTa.value, tgt:tgtTa.value, s:srcSel.value, t:tgtSel.value, ts:Date.now() };
+      toggleFav(entry);
+      renderHistory(); renderFavorites();
     };
 
-    // enter to translate
-    srcTa.addEventListener('keydown',e=>{
-      if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); transBtn.click(); }
+    // theme toggle
+    themeBtn.onclick = () => {
+      const next = body.dataset.theme==='light'?'dark':'light';
+      body.dataset.theme = next;
+      themeBtn.textContent = next==='dark'?'☀️ Light Mode':'🌙 Dark Mode';
+    };
+
+    // Enter to translate
+    srcTa.addEventListener('keydown', e => {
+      if (e.key==='Enter' && !e.shiftKey) {
+        e.preventDefault();
+        transBtn.click();
+      }
     });
 
-    // init UI
-    renderHistory(); renderFavorites();
+    // init lists
+    renderHistory();
+    renderFavorites();
   })();
   </script>
 </body>
