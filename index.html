@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>PolyglotPal – Instant Text Translator</title>
-  <meta name="description" content="PolyglotPal: translate text instantly between 100+ languages—requires a translation API endpoint."/>
+  <meta name="description" content="PolyglotPal: translate text instantly between 100+ languages, save phrases, listen pronunciation, copy or download—all client-side.">
   <style>
     :root {
       --bg: #f4f4f4; --fg: #333; --card: #fff;
@@ -20,7 +20,8 @@
     body {
       background:var(--bg); color:var(--fg);
       font-family:Arial,sans-serif;
-      display:flex; flex-direction:column; min-height:100vh;
+      display:flex; flex-direction:column;
+      min-height:100vh;
     }
     header, footer {
       background:var(--primary); color:#fff;
@@ -75,7 +76,7 @@
 <body data-theme="light">
   <header>
     <h1>PolyglotPal</h1>
-    <p>Instant text translation (needs a working API endpoint)</p>
+    <p>Translate text instantly between 100+ languages</p>
   </header>
 
   <main>
@@ -97,7 +98,7 @@
       <div class="actions">
         <button id="speakBtn">🔊 Speak</button>
         <button id="copyBtn">📋 Copy</button>
-        <button id="downloadBtn">⬇️ Download</button>
+        <button id="downloadBtn">⬇️ Download .txt</button>
         <button id="favBtn" class="star-btn">☆ Favorite</button>
         <button id="themeBtn">🌙 Dark Mode</button>
       </div>
@@ -114,75 +115,72 @@
   </main>
 
   <footer>
-    © 2025 Bocaletto Luca |
+    © 2025 Bocaletto Luca | 
     <a href="https://github.com/bocaletto-luca/PolyglotPal" target="_blank">Repository</a>
   </footer>
 
   <script>
   (function(){
-    const TRANSLATE_API = 'https://libretranslate.de/translate';   // ← Set your CORS-enabled endpoint here
+    // MyMemory API settings
+    const API_URL = 'https://api.mymemory.translated.net/get';
     const LANGS = {
       en:'English', es:'Spanish', fr:'French', de:'German',
-      it:'Italian', pt:'Portuguese', ru:'Russian', ja:'Japanese', zh:'Chinese',
-      ar:'Arabic', ko:'Korean', nl:'Dutch', sv:'Swedish',
-      hi:'Hindi', vi:'Vietnamese', id:'Indonesian', tr:'Turkish'
+      it:'Italian', pt:'Portuguese', ru:'Russian', ja:'Japanese',
+      zh:'Chinese', ar:'Arabic', ko:'Korean', nl:'Dutch',
+      sv:'Swedish', hi:'Hindi', vi:'Vietnamese',
+      id:'Indonesian', tr:'Turkish'
     };
 
     // UI refs
-    const srcSel  = document.getElementById('srcLang');
-    const tgtSel  = document.getElementById('tgtLang');
-    const srcTa   = document.getElementById('srcText');
-    const tgtTa   = document.getElementById('tgtText');
-    const swapBtn = document.getElementById('swapBtn');
-    const transBtn= document.getElementById('transBtn');
-    const speakBtn= document.getElementById('speakBtn');
-    const copyBtn = document.getElementById('copyBtn');
-    const downBtn = document.getElementById('downloadBtn');
-    const favBtn  = document.getElementById('favBtn');
-    const themeBtn= document.getElementById('themeBtn');
-    const histUL  = document.getElementById('historyList');
-    const favUL   = document.getElementById('favList');
-    const body    = document.body;
+    const srcSel = document.getElementById('srcLang');
+    const tgtSel = document.getElementById('tgtLang');
+    const srcTa  = document.getElementById('srcText');
+    const tgtTa  = document.getElementById('tgtText');
+    const swapBtn= document.getElementById('swapBtn');
+    const transBtn = document.getElementById('transBtn');
+    const speakBtn = document.getElementById('speakBtn');
+    const copyBtn  = document.getElementById('copyBtn');
+    const downBtn  = document.getElementById('downloadBtn');
+    const favBtn   = document.getElementById('favBtn');
+    const themeBtn = document.getElementById('themeBtn');
+    const histUL   = document.getElementById('historyList');
+    const favUL    = document.getElementById('favList');
+    const body     = document.body;
 
-    // state
-    let state = JSON.parse(localStorage.getItem('polyglotpal') || '{"history":[],"favorites":[]}');
+    // persistent state
+    let state = JSON.parse(localStorage.getItem('polyglotpal')||'{"history":[],"favorites":[]}');
     function saveState(){ localStorage.setItem('polyglotpal', JSON.stringify(state)); }
 
-    // populate languages
-    for (let code in LANGS) {
-      srcSel.add(new Option(LANGS[code], code));
-      tgtSel.add(new Option(LANGS[code], code));
-    }
-    srcSel.value = 'en';
-    tgtSel.value = 'es';
+    // populate language dropdowns
+    Object.entries(LANGS).forEach(([code,name])=>{
+      srcSel.add(new Option(name,code));
+      tgtSel.add(new Option(name,code));
+    });
+    srcSel.value='en';
+    tgtSel.value='es';
 
-    // swap
-    swapBtn.onclick = () => {
+    // swap source/target
+    swapBtn.onclick = ()=>{
       [srcSel.value, tgtSel.value] = [tgtSel.value, srcSel.value];
       [srcTa.value, tgtTa.value]   = [tgtTa.value, srcTa.value];
     };
 
-    // translate
-    transBtn.onclick = async () => {
+    // perform translation via MyMemory
+    transBtn.onclick = async ()=>{
       const text = srcTa.value.trim();
       if (!text) return;
       transBtn.disabled = true;
       tgtTa.value = 'Translating…';
       try {
-        const res = await fetch(TRANSLATE_API, {
-          method: 'POST',
-          headers: { 'Content-Type':'application/json' },
-          body: JSON.stringify({
-            q: text,
-            source: srcSel.value,
-            target: tgtSel.value,
-            format: 'text'
-          })
-        });
+        // build URL: q & langpair
+        const url = API_URL
+          + '?q=' + encodeURIComponent(text)
+          + '&langpair=' + srcSel.value + '|' + tgtSel.value;
+        const res = await fetch(url);
         const json = await res.json();
-        if (json.error) throw new Error(json.error);
-        tgtTa.value = json.translatedText;
-        addHistory(text,json.translatedText);
+        const translated = json.responseData.translatedText;
+        tgtTa.value = translated;
+        addHistory(text, translated);
       } catch(err) {
         console.error(err);
         tgtTa.value = 'Error during translation';
@@ -191,14 +189,14 @@
     };
 
     // history & favorites
-    function addHistory(src,tgt) {
-      const entry = { src,tgt,s:srcSel.value,t:tgtSel.value,ts:Date.now() };
+    function addHistory(src,tgt){
+      const entry = {src,tgt,s:srcSel.value,t:tgtSel.value,ts:Date.now()};
       state.history.unshift(entry);
-      if (state.history.length>50) state.history.pop();
+      if (state.history.length > 50) state.history.pop();
       saveState(); renderHistory();
     }
     function isFav(e){ return state.favorites.some(f=>f.ts===e.ts); }
-    function toggleFav(e) {
+    function toggleFav(e){
       if (isFav(e)) state.favorites = state.favorites.filter(f=>f.ts!==e.ts);
       else state.favorites.unshift(e);
       saveState();
@@ -206,14 +204,14 @@
     function renderHistory(){
       histUL.innerHTML = '';
       state.history.forEach(e=>{
-        const li=document.createElement('li');
+        const li = document.createElement('li');
         li.innerHTML = `<span class="hist-text">${e.src} → ${e.tgt}</span>
                         <button class="star-btn">${isFav(e)?'★':'☆'}</button>`;
-        li.querySelector('.hist-text').onclick = () => {
+        li.querySelector('.hist-text').onclick = ()=>{
           srcTa.value=e.src; tgtTa.value=e.tgt;
           srcSel.value=e.s; tgtSel.value=e.t;
         };
-        li.querySelector('.star-btn').onclick = () => {
+        li.querySelector('.star-btn').onclick = ()=>{
           toggleFav(e); renderHistory(); renderFavorites();
         };
         histUL.appendChild(li);
@@ -222,53 +220,57 @@
     function renderFavorites(){
       favUL.innerHTML = '';
       state.favorites.forEach(e=>{
-        const li=document.createElement('li');
+        const li = document.createElement('li');
         li.innerHTML = `<span class="hist-text">${e.src} → ${e.tgt}</span>
                         <button class="star-btn">★</button>`;
-        li.querySelector('.hist-text').onclick = () => {
+        li.querySelector('.hist-text').onclick = ()=>{
           srcTa.value=e.src; tgtTa.value=e.tgt;
           srcSel.value=e.s; tgtSel.value=e.t;
         };
-        li.querySelector('.star-btn').onclick = () => {
+        li.querySelector('.star-btn').onclick = ()=>{
           toggleFav(e); renderHistory(); renderFavorites();
         };
         favUL.appendChild(li);
       });
     }
 
-    // speak, copy, download, favorite
-    speakBtn.onclick = () => {
+    // speak, copy, download, mark favorite
+    speakBtn.onclick = ()=>{
       const u = new SpeechSynthesisUtterance(tgtTa.value);
       u.lang = tgtSel.value;
       speechSynthesis.speak(u);
     };
     copyBtn.onclick = async ()=>{
-      try { await navigator.clipboard.writeText(tgtTa.value); alert('Copied'); }
-      catch { alert('Copy failed'); }
+      try{ await navigator.clipboard.writeText(tgtTa.value); alert('Copied'); }
+      catch{ alert('Copy failed'); }
     };
     downBtn.onclick = ()=>{
       const blob=new Blob([
-        `Original (${srcSel.value}):\n${srcTa.value}\n\nTranslated (${tgtSel.value}):\n${tgtTa.value}`
+        `Original (${srcSel.value}):\n${srcTa.value}\n\n`,
+        `Translated (${tgtSel.value}):\n${tgtTa.value}`
       ],{type:'text/plain'});
       const url=URL.createObjectURL(blob);
       const a=document.createElement('a');
-      a.href=url; a.download='translation.txt'; a.click(); URL.revokeObjectURL(url);
+      a.href=url; a.download='translation.txt'; a.click();
+      URL.revokeObjectURL(url);
     };
     favBtn.onclick = ()=>{
       const entry={src:srcTa.value,tgt:tgtTa.value,s:srcSel.value,t:tgtSel.value,ts:Date.now()};
       toggleFav(entry); renderHistory(); renderFavorites();
     };
 
-    // theme toggle
+    // theme
     themeBtn.onclick = ()=>{
       const next = body.dataset.theme==='light'?'dark':'light';
       body.dataset.theme = next;
       themeBtn.textContent = next==='dark'?'☀️ Light Mode':'🌙 Dark Mode';
     };
 
-    // Enter => translate
+    // enter to translate
     srcTa.addEventListener('keydown', e=>{
-      if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); transBtn.click(); }
+      if (e.key==='Enter' && !e.shiftKey) {
+        e.preventDefault(); transBtn.click();
+      }
     });
 
     // init
